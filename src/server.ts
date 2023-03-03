@@ -1,4 +1,5 @@
 import { create } from "venom-bot";
+import { getStage, stages } from "./stages";
 
 create({
   session: "store",
@@ -14,12 +15,22 @@ create({
 function start(client: any) {
   client.onMessage((message: any) => {
     if (!message.isGroupMsg) {
+      const currentStage = getStage({ from: message.from });
 
-        client.sendText(message.from, 'Bem vindo ao atendimento de Teste').then((result: any) => {
-            console.log(result)
-        }).catch((err: any) => {
-            console.log(err)
-        });
+      const messageResponse = stages[currentStage].stage.exec({
+        from: message.from,
+      });
+
+      if (messageResponse) {
+        client
+          .sendText(message.from, messageResponse)
+          .then((result: any) => {
+            console.log(message.body)
+          })
+          .catch((err: any) => {
+            console.log(err);
+          });
+      }
     }
   });
 }
